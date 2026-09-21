@@ -2,3 +2,6 @@
 .env
 __pycache__/
 .ipynb_checkpoints/
+ca.pem
+text_to_sql_backup.sql
+test_aiven.py
