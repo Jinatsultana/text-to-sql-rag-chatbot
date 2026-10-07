@@ -1,5 +1,5 @@
 import re
-from urllib.parse import quote_plus
+from pathlib import Path
 
 import streamlit as st
 
@@ -22,29 +22,24 @@ st.set_page_config(
 
 
 # ---------------------------------------------------------
-# Database Connection
+# Database Connection - SQLite
 # ---------------------------------------------------------
 
 @st.cache_resource
 def get_database():
 
-    host = st.secrets["DB_HOST"]
-    port = int(st.secrets["DB_PORT"])
-    username = st.secrets["DB_USER"]
-    password = st.secrets["DB_PASSWORD"]
-    database_name = st.secrets["DB_NAME"]
+    # sales_database.db is stored in the root of the GitHub repository
+    db_path = Path(__file__).resolve().parent / "sales_database.db"
 
-    # Encode password in case it contains special characters
-    password_encoded = quote_plus(password)
+    if not db_path.exists():
+        raise FileNotFoundError(
+            "sales_database.db was not found in the application directory."
+        )
 
-    mysql_uri = (
-        f"mysql+pymysql://"
-        f"{username}:{password_encoded}"
-        f"@{host}:{port}/{database_name}"
-    )
+    sqlite_uri = f"sqlite:///{db_path}"
 
     db = SQLDatabase.from_uri(
-        mysql_uri,
+        sqlite_uri,
         sample_rows_in_table_info=2
     )
 
@@ -82,6 +77,7 @@ Rules:
 - Only generate SELECT queries.
 - Do not generate INSERT, UPDATE, DELETE, DROP, ALTER, CREATE,
   TRUNCATE, or other data-modifying queries.
+- Use SQLite-compatible SQL syntax.
 
 Table Schema:
 {schema}
@@ -224,7 +220,7 @@ st.write(
 
 st.info(
     "Ask a question in plain English. "
-    "Gemini will generate SQL and execute it against the MySQL database."
+    "Gemini will generate SQL and execute it against the local SQLite database."
 )
 
 
@@ -268,8 +264,8 @@ if question:
         except Exception as e:
 
             st.error(
-                "Something went wrong while connecting to the database "
-                "or generating the SQL query."
+                "Something went wrong while generating the SQL query "
+                "or querying the database."
             )
 
             st.exception(e)
@@ -296,7 +292,7 @@ with st.sidebar:
         - Streamlit
         - LangChain
         - Google Gemini
-        - MySQL
+        - SQLite
         - Ragas
         """
     )
