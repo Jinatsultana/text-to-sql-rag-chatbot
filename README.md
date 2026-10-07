@@ -15,27 +15,67 @@ The system provides the database schema to the LLM, which generates the correspo
 ##  Architecture
 
 ```text
-User Question
-      ↓
-Database Schema
-      ↓
-LangChain Prompt
-      ↓
-Gemini LLM
-      ↓
-SQL Query
-      ↓
-MySQL Database
-      ↓
-Query Result
-      ↓
-Ragas Evaluation
+                         USER
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │ User Question │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Database      │
+                  │ Schema        │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ LangChain     │
+                  │ Prompt        │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Gemini LLM    │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Generated SQL │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ SQL Validation│
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ SQLite        │
+                  │ Database      │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Query Result  │
+                  └───────┬───────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Display to    │
+                  │ User          │
+                  └───────────────┘
+
+                       EVALUATION
+                           │
+          ┌────────────────┴────────────────┐
+          ▼                                 ▼
+ Evaluation Dataset                 Generated Responses
+          │                                 │
+          └───────────────┬─────────────────┘
+                          ▼
+                  ┌───────────────┐
+                  │ Ragas         │
+                  │ Evaluation    │
+                  └───────────────┘
 ```
 ##  Technologies Used
 - Python
 - LangChain
 - Google Gemini
-- MySQL
+- SQLite
 - Ragas
 - Groq
 - Hugging Face Embeddings
